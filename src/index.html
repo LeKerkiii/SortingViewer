@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        #chart div {
+            background-color: steelblue;
+            width: 20px;
+            height: 0;
+            transition: all 0.3s ease-out;
+        }
+        #chart {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Visualisierung von Sortieralgorithmen</h2>
+        <div class="form-group">
+            <label for="dataCount">Menge der Daten:</label>
+            <input type="number" id="dataCount" value="25" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="algorithm">Sortieralgorithmus:</label>
+            <select id="algorithm" class="form-control">
+                <option value="bubbleSort">Bubble Sort</option>
+                <option value="selectionSort">Selection Sort</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="speed">Geschwindigkeit(in Millisekunden):</label>
+            <input type="number" id="speed" value="1" class="form-control">
+        </div>
+        <button onclick="sortData()" class="btn btn-primary">Sortieren</button>
+        <div id="chart" class="mt-3"></div>
+    </div>
+
+    <script>
+        var data = [];
+        var sorting = false;
+
+        function generateData() {
+            var dataCount = document.getElementById('dataCount').value;
+            data = [];
+            for(var i = 0; i < dataCount; i++) {
+                data.push(Math.floor(Math.random() * 100));
+            }
+            drawChart(data);
+        }
+
+        function drawChart(data) {
+            var chart = document.getElementById('chart');
+            chart.innerHTML = '';
+            for(var i = 0; i < data.length; i++) {
+                var bar = document.createElement('div');
+                bar.style.height = data[i] + '%';
+                bar.style.backgroundColor = 'rgb(' + Math.floor(255 - 2.55 * data[i]) + ', ' + Math.floor(2.55 * data[i]) + ', 150)';
+                chart.appendChild(bar);
+            }
+        }
+
+        async function sortData() {
+            if(sorting) return;
+            sorting = true;
+            generateData();
+            var algorithm = document.getElementById('algorithm').value;
+            var speed = document.getElementById('speed').value;
+            if(algorithm === 'bubbleSort') {
+                await bubbleSort(data, speed);
+            } else if(algorithm === 'selectionSort') {
+                await selectionSort(data, speed);
+            }
+            sorting = false;
+        }
+
+        async function bubbleSort(data, speed) {
+            var len = data.length;
+            for (var i = 0; i < len; i++) {
+                for (var j = 0; j < len - i - 1; j++) {
+                    if (data[j] > data[j + 1]) {
+                        var temp = data[j];
+                        data[j] = data[j + 1];
+                        data[j + 1] = temp;
+                    }
+                    drawChart(data);
+                    await new Promise(resolve => setTimeout(resolve, speed));
+                    if(!sorting) return;
+                }
+            }
+        }
+
+        async function selectionSort(data, speed) {
+            var len = data.length;
+            for (var i = 0; i < len; i++) {
+                var min = i;
+                for (var j = i + 1; j < len; j++) {
+                    if (data[min] > data[j]) {
+                        min = j;
+                    }
+                }
+                if (min !== i) {
+                    var temp = data[i];
+                    data[i] = data[min];
+                    data[min] = temp;
+                }
+                drawChart(data);
+                await new Promise(resolve => setTimeout(resolve, speed));
+                if(!sorting) return;
+            }
+        }
+    </script>
+</body>
+</html>
